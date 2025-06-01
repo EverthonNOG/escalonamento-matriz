@@ -74,23 +74,34 @@ class JanelaHistorico:
     def __init__(self, parent, historico):
         self.janela = tk.Toplevel(parent)
         self.janela.title("Passo a Passo do Escalonamento")
-        self.janela.geometry("700x500")
+        self.janela.geometry("800x600")
+        self.janela.configure(bg='#f5f7fa')
+        
+        # Configurar estilo
+        style = ttk.Style()
+        style.configure('Hist.TFrame', background='#f5f7fa')
+        style.configure('Hist.TButton', background='#4a7abc', foreground='white')
         
         # Frame principal
-        main_frame = ttk.Frame(self.janela)
-        main_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        main_frame = ttk.Frame(self.janela, padding=15)
+        main_frame.pack(fill='both', expand=True)
+        
+        # Título
+        ttk.Label(main_frame, text="Passo a Passo do Processo", 
+                 font=('Arial', 14, 'bold'), foreground='#2c3e50').pack(pady=(0, 15))
         
         # Área de texto com scrollbar
         text_frame = ttk.Frame(main_frame)
         text_frame.pack(fill='both', expand=True)
         
         self.text_area = scrolledtext.ScrolledText(
-            text_frame, wrap='word', font=('Courier New', 11)
+            text_frame, wrap='word', font=('Courier New', 11), 
+            bg='#ffffff', relief='flat', padx=15, pady=15
         )
         self.text_area.pack(fill='both', expand=True)
         
         # Configurar tags
-        self.text_area.tag_configure('passo', foreground='blue', font=('Arial', 11, 'bold'))
+        self.text_area.tag_configure('passo', foreground='#2980b9', font=('Arial', 11, 'bold'))
         self.text_area.tag_configure('descricao', foreground='#333', font=('Arial', 10))
         self.text_area.tag_configure('matriz', font=('Courier New', 10))
         
@@ -109,9 +120,10 @@ class JanelaHistorico:
         
         # Botão de fechar
         btn_frame = ttk.Frame(main_frame)
-        btn_frame.pack(fill='x', pady=10)
+        btn_frame.pack(fill='x', pady=15)
         
-        ttk.Button(btn_frame, text="Fechar", command=self.janela.destroy).pack(pady=5)
+        ttk.Button(btn_frame, text="Fechar", command=self.janela.destroy, 
+                  style='Hist.TButton', width=15).pack(pady=5)
         
         # Centralizar janela
         Utils.centralizar_janela(self.janela)
@@ -121,7 +133,22 @@ class Aplicacao:
     def __init__(self, janela):
         self.janela = janela
         self.janela.title("Escalonador de Matrizes")
-        self.janela.geometry("800x500")
+        self.janela.geometry("1000x650")
+        self.janela.configure(bg='#f5f7fa')
+        
+        # Configurar tema
+        style = ttk.Style()
+        style.theme_use('clam')
+        
+        # Configurar estilos personalizados
+        style.configure('TFrame', background='#f5f7fa')
+        style.configure('TLabel', background='#f5f7fa', font=('Arial', 10))
+        style.configure('TButton', font=('Arial', 10), padding=6)
+        style.configure('Title.TLabel', font=('Arial', 16, 'bold'), foreground='#2c3e50')
+        style.configure('Section.TLabelframe.Label', font=('Arial', 11, 'bold'), foreground='#2c3e50')
+        style.configure('Section.TLabelframe', background='#f5f7fa', borderwidth=1, relief='solid')
+        style.configure('Accent.TButton', background='#4a7abc', foreground='white')
+        style.map('Accent.TButton', background=[('active', '#3a6aac')])
         
         # Variáveis
         self.linhas = tk.IntVar(value=3)
@@ -133,59 +160,90 @@ class Aplicacao:
         
         # Desenhar matriz inicial
         self.desenhar_matriz_entrada()
+        
+        # Centralizar janela
+        Utils.centralizar_janela(self.janela)
     
     def criar_widgets(self):
         # Frame principal
-        main_frame = ttk.Frame(self.janela, padding=10)
+        main_frame = ttk.Frame(self.janela, padding=20)
         main_frame.pack(fill='both', expand=True)
         
-        # Painel de configuração
-        config_frame = ttk.Frame(main_frame)
-        config_frame.pack(fill='x', pady=(0, 10))
+        # Título
+        ttk.Label(main_frame, text="Escalonador de Matrizes", 
+                 style='Title.TLabel').pack(pady=(0, 20))
         
-        # Controles de dimensão
-        ttk.Label(config_frame, text="Linhas:").pack(side='left', padx=(0, 5))
-        self.spin_linhas = ttk.Spinbox(config_frame, from_=2, to=6, width=5,
-                                      textvariable=self.linhas, command=self.atualizar_matriz)
+        # Painel de configuração
+        config_frame = ttk.LabelFrame(main_frame, text=" Configurações ", style='Section.TLabelframe', padding=15)
+        config_frame.pack(fill='x', pady=(0, 20))
+        
+        # Controles de dimensão (agora 1-12)
+        dim_frame = ttk.Frame(config_frame)
+        dim_frame.pack(fill='x', pady=10)
+        
+        ttk.Label(dim_frame, text="Linhas:", font=('Arial', 10)).pack(side='left', padx=(0, 5))
+        self.spin_linhas = ttk.Spinbox(dim_frame, from_=1, to=12, width=5,
+                                      textvariable=self.linhas, command=self.atualizar_matriz,
+                                      font=('Arial', 10))
         self.spin_linhas.pack(side='left', padx=5)
         
-        ttk.Label(config_frame, text="Colunas:").pack(side='left', padx=(10, 5))
-        self.spin_colunas = ttk.Spinbox(config_frame, from_=2, to=6, width=5,
-                                       textvariable=self.colunas, command=self.atualizar_matriz)
+        ttk.Label(dim_frame, text="Colunas:", font=('Arial', 10)).pack(side='left', padx=(20, 5))
+        self.spin_colunas = ttk.Spinbox(dim_frame, from_=1, to=12, width=5,
+                                       textvariable=self.colunas, command=self.atualizar_matriz,
+                                       font=('Arial', 10))
         self.spin_colunas.pack(side='left', padx=5)
         
         # Botões de ação
         btn_frame = ttk.Frame(config_frame)
-        btn_frame.pack(side='right')
+        btn_frame.pack(fill='x', pady=10)
         
-        ttk.Button(btn_frame, text="Escalonar", command=self.realizar_escalonamento).pack(side='left', padx=5)
-        ttk.Button(btn_frame, text="Limpar", command=self.limpar).pack(side='left', padx=5)
-        self.historico_btn = ttk.Button(btn_frame, text="Passo a Passo", command=self.mostrar_historico, state='disabled')
-        self.historico_btn.pack(side='left', padx=5)
+        ttk.Button(btn_frame, text="Escalonar", command=self.realizar_escalonamento,
+                  style='Accent.TButton', width=12).pack(side='left', padx=10)
+        ttk.Button(btn_frame, text="Limpar", command=self.limpar, width=12).pack(side='left', padx=10)
+        self.historico_btn = ttk.Button(btn_frame, text="Passo a Passo", 
+                                      command=self.mostrar_historico, state='disabled', width=12)
+        self.historico_btn.pack(side='left', padx=10)
         
         # Painel de matrizes
         matrizes_frame = ttk.Frame(main_frame)
         matrizes_frame.pack(fill='both', expand=True)
         
-        # Matriz de entrada
-        entrada_frame = ttk.LabelFrame(matrizes_frame, text="Matriz de Entrada")
-        entrada_frame.pack(side='left', fill='both', expand=True, padx=5)
+        # Matriz de entrada com scroll para suportar 12x12
+        entrada_frame = ttk.LabelFrame(matrizes_frame, text=" Matriz de Entrada ", 
+                                     style='Section.TLabelframe', padding=15)
+        entrada_frame.pack(side='left', fill='both', expand=True, padx=10)
         
-        # Container para matriz de entrada
-        self.entrada_container = ttk.Frame(entrada_frame, padding=10)
-        self.entrada_container.pack(fill='both', expand=True)
+        # Container com scroll para matriz de entrada
+        entrada_canvas = tk.Canvas(entrada_frame, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(entrada_frame, orient="vertical", command=entrada_canvas.yview)
+        self.entrada_scrollable = ttk.Frame(entrada_canvas)
+        
+        self.entrada_scrollable.bind(
+            "<Configure>",
+            lambda e: entrada_canvas.configure(scrollregion=entrada_canvas.bbox("all"))
+        )
+        
+        entrada_canvas.create_window((0, 0), window=self.entrada_scrollable, anchor="nw")
+        entrada_canvas.configure(yscrollcommand=scrollbar.set)
+        
+        scrollbar.pack(side="right", fill="y")
+        entrada_canvas.pack(side="left", fill="both", expand=True)
+        
+        self.entrada_container = self.entrada_scrollable
         
         # Matriz de resultado
-        resultado_frame = ttk.LabelFrame(matrizes_frame, text="Matriz Escalonada")
-        resultado_frame.pack(side='right', fill='both', expand=True, padx=5)
+        resultado_frame = ttk.LabelFrame(matrizes_frame, text=" Matriz Escalonada ", 
+                                       style='Section.TLabelframe', padding=15)
+        resultado_frame.pack(side='right', fill='both', expand=True, padx=10)
         
         # Container para matriz de resultado
-        self.resultado_container = ttk.Frame(resultado_frame, padding=10)
-        self.resultado_container.pack(fill='both', expand=True)
+        self.resultado_container = ttk.Frame(resultado_frame)
+        self.resultado_container.pack(fill='both', expand=True, padx=5, pady=5)
         
         # Scrollbar para resultado
         self.resultado_scroll = scrolledtext.ScrolledText(
-            self.resultado_container, wrap='none', font=('Courier New', 11)
+            self.resultado_container, wrap='none', font=('Courier New', 11),
+            bg='#ffffff', relief='flat', padx=10, pady=10
         )
         self.resultado_scroll.pack(fill='both', expand=True)
         self.resultado_scroll.config(state='disabled')
@@ -207,7 +265,7 @@ class Aplicacao:
             linha_campos = []
             for j in range(colunas):
                 frame = ttk.Frame(self.entrada_container)
-                frame.grid(row=i, column=j, padx=2, pady=2)
+                frame.grid(row=i, column=j, padx=5, pady=5)
                 
                 entry = ttk.Entry(frame, width=6, justify='center', font=('Arial', 10))
                 entry.pack()
@@ -232,7 +290,11 @@ class Aplicacao:
             for i in range(linhas):
                 linha_vals = []
                 for j in range(colunas):
-                    valor = self.campos_entrada[i][j].get()
+                    valor = self.campos_entrada[i][j].get().strip()
+                    
+                    # Tratar células vazias
+                    if not valor:
+                        valor = "0"
                     
                     # Converter frações
                     if '/' in valor:
@@ -270,7 +332,7 @@ class Aplicacao:
             self.mostrar_resultado(resultado)
             self.historico_btn.config(state='normal')
         except Exception as e:
-            messagebox.showerror("Erro no Processamento", f"Ocorreu um erro durante o escalonamento:\n{str(e)}")
+            messagebox.showerror("Erro no Processamento", f"Ocorreu um erro:\n{str(e)}")
     
     def limpar(self):
         linhas = self.linhas.get()
@@ -298,5 +360,4 @@ class Aplicacao:
 if __name__ == "__main__":
     janela = tk.Tk()
     app = Aplicacao(janela)
-    Utils.centralizar_janela(janela)
     janela.mainloop()
