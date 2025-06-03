@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
-from algebra import MatrizCondensadaEscada
+from algebra import MatrizEscada
 from fractions import Fraction as Fr
 
 class Utils:
@@ -286,14 +286,16 @@ class Aplicacao:
                                 "Use números inteiros ou frações (ex: 1/2)")
             return None
     
+    
     def realizar_escalonamento(self):
+        """Executa o escalonamento e exibe os resultados."""
         matriz = self.obter_matriz()
         if matriz is None:
             return
         
         try:
-            self.transformador = MatrizCondensadaEscada(matriz)
-            resultado = self.transformador.condensar()
+            self.transformador = MatrizEscada(matriz)  # Usando nova classe
+            resultado = self.transformador.escalonar()  # Método renomeado
             
             self.mostrar_resultado(resultado)
             self.historico_btn.config(state='normal')
