@@ -30,7 +30,6 @@ class Utils:
         if not matriz or not matriz[0]:
             return ""
             
-        # Calcula a largura máxima de cada coluna
         col_widths = []
         for j in range(len(matriz[0])):
             max_width = 0
@@ -38,9 +37,8 @@ class Utils:
                 formatted = Utils.formatar_fracoes(linha[j])
                 if len(formatted) > max_width:
                     max_width = len(formatted)
-            col_widths.append(max_width + 2)  # +2 para margem
+            col_widths.append(max_width + 2)
         
-        # Monta a representação com bordas
         lines = []
         for i, linha in enumerate(matriz):
             elements = []
@@ -77,20 +75,16 @@ class JanelaHistorico:
         self.janela.geometry("800x600")
         self.janela.configure(bg='#f5f7fa')
         
-        # Configurar estilo
         style = ttk.Style()
         style.configure('Hist.TFrame', background='#f5f7fa')
         style.configure('Hist.TButton', background='#4a7abc', foreground='white')
         
-        # Frame principal
         main_frame = ttk.Frame(self.janela, padding=15)
         main_frame.pack(fill='both', expand=True)
         
-        # Título
         ttk.Label(main_frame, text="Passo a Passo do Processo", 
                  font=('Arial', 14, 'bold'), foreground='#2c3e50').pack(pady=(0, 15))
         
-        # Área de texto com scrollbar
         text_frame = ttk.Frame(main_frame)
         text_frame.pack(fill='both', expand=True)
         
@@ -100,12 +94,10 @@ class JanelaHistorico:
         )
         self.text_area.pack(fill='both', expand=True)
         
-        # Configurar tags
         self.text_area.tag_configure('passo', foreground='#2980b9', font=('Arial', 11, 'bold'))
         self.text_area.tag_configure('descricao', foreground='#333', font=('Arial', 10))
         self.text_area.tag_configure('matriz', font=('Courier New', 10))
         
-        # Adicionar o histórico
         self.text_area.config(state='normal')
         for etapa in historico:
             if etapa.get('tipo') == 'passo':
@@ -118,14 +110,12 @@ class JanelaHistorico:
                 self.text_area.insert(tk.END, formatted + "\n\n", 'matriz')
         self.text_area.config(state='disabled')
         
-        # Botão de fechar
         btn_frame = ttk.Frame(main_frame)
         btn_frame.pack(fill='x', pady=15)
         
         ttk.Button(btn_frame, text="Fechar", command=self.janela.destroy, 
                   style='Hist.TButton', width=15).pack(pady=5)
         
-        # Centralizar janela
         Utils.centralizar_janela(self.janela)
         self.janela.grab_set()
 
@@ -136,11 +126,9 @@ class Aplicacao:
         self.janela.geometry("1000x650")
         self.janela.configure(bg='#f5f7fa')
         
-        # Configurar tema
         style = ttk.Style()
         style.theme_use('clam')
         
-        # Configurar estilos personalizados
         style.configure('TFrame', background='#f5f7fa')
         style.configure('TLabel', background='#f5f7fa', font=('Arial', 10))
         style.configure('TButton', font=('Arial', 10), padding=6)
@@ -150,34 +138,24 @@ class Aplicacao:
         style.configure('Accent.TButton', background='#4a7abc', foreground='white')
         style.map('Accent.TButton', background=[('active', '#3a6aac')])
         
-        # Variáveis
         self.linhas = tk.IntVar(value=3)
         self.colunas = tk.IntVar(value=3)
         self.transformador = None
         
-        # Criar widgets
         self.criar_widgets()
-        
-        # Desenhar matriz inicial
         self.desenhar_matriz_entrada()
-        
-        # Centralizar janela
         Utils.centralizar_janela(self.janela)
     
     def criar_widgets(self):
-        # Frame principal
         main_frame = ttk.Frame(self.janela, padding=20)
         main_frame.pack(fill='both', expand=True)
         
-        # Título
         ttk.Label(main_frame, text="Escalonador de Matrizes", 
                  style='Title.TLabel').pack(pady=(0, 20))
         
-        # Painel de configuração
         config_frame = ttk.LabelFrame(main_frame, text=" Configurações ", style='Section.TLabelframe', padding=15)
         config_frame.pack(fill='x', pady=(0, 20))
         
-        # Controles de dimensão (agora 1-12)
         dim_frame = ttk.Frame(config_frame)
         dim_frame.pack(fill='x', pady=10)
         
@@ -193,7 +171,6 @@ class Aplicacao:
                                        font=('Arial', 10))
         self.spin_colunas.pack(side='left', padx=5)
         
-        # Botões de ação
         btn_frame = ttk.Frame(config_frame)
         btn_frame.pack(fill='x', pady=10)
         
@@ -204,16 +181,13 @@ class Aplicacao:
                                       command=self.mostrar_historico, state='disabled', width=12)
         self.historico_btn.pack(side='left', padx=10)
         
-        # Painel de matrizes
         matrizes_frame = ttk.Frame(main_frame)
         matrizes_frame.pack(fill='both', expand=True)
         
-        # Matriz de entrada com scroll para suportar 12x12
         entrada_frame = ttk.LabelFrame(matrizes_frame, text=" Matriz de Entrada ", 
                                      style='Section.TLabelframe', padding=15)
         entrada_frame.pack(side='left', fill='both', expand=True, padx=10)
         
-        # Container com scroll para matriz de entrada
         entrada_canvas = tk.Canvas(entrada_frame, highlightthickness=0)
         scrollbar = ttk.Scrollbar(entrada_frame, orient="vertical", command=entrada_canvas.yview)
         self.entrada_scrollable = ttk.Frame(entrada_canvas)
@@ -231,16 +205,13 @@ class Aplicacao:
         
         self.entrada_container = self.entrada_scrollable
         
-        # Matriz de resultado
         resultado_frame = ttk.LabelFrame(matrizes_frame, text=" Matriz Escalonada ", 
                                        style='Section.TLabelframe', padding=15)
         resultado_frame.pack(side='right', fill='both', expand=True, padx=10)
         
-        # Container para matriz de resultado
         self.resultado_container = ttk.Frame(resultado_frame)
         self.resultado_container.pack(fill='both', expand=True, padx=5, pady=5)
         
-        # Scrollbar para resultado
         self.resultado_scroll = scrolledtext.ScrolledText(
             self.resultado_container, wrap='none', font=('Courier New', 11),
             bg='#ffffff', relief='flat', padx=10, pady=10
@@ -252,14 +223,12 @@ class Aplicacao:
         self.desenhar_matriz_entrada()
     
     def desenhar_matriz_entrada(self):
-        # Limpar container
         for widget in self.entrada_container.winfo_children():
             widget.destroy()
         
         linhas = self.linhas.get()
         colunas = self.colunas.get()
         
-        # Criar grade de entrada
         self.campos_entrada = []
         for i in range(linhas):
             linha_campos = []
@@ -292,11 +261,9 @@ class Aplicacao:
                 for j in range(colunas):
                     valor = self.campos_entrada[i][j].get().strip()
                     
-                    # Tratar células vazias
                     if not valor:
                         valor = "0"
                     
-                    # Converter frações
                     if '/' in valor:
                         partes = valor.split('/')
                         if len(partes) == 2:
@@ -309,7 +276,6 @@ class Aplicacao:
                         else:
                             raise ValueError("Formato de fração inválido")
                     else:
-                        # Tentar converter para inteiro
                         linha_vals.append(Fr(valor))
                 matriz.append(linha_vals)
             
